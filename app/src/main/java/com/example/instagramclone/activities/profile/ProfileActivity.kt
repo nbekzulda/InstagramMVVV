@@ -1,9 +1,10 @@
-package com.example.instagramclone.activities
+package com.example.instagramclone.activities.profile
 
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import com.example.instagramclone.R
+import com.example.instagramclone.activities.BaseActivity
 import kotlinx.android.synthetic.main.activity_profile.*
 
 class ProfileActivity : BaseActivity(4) {
