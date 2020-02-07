@@ -23,21 +23,19 @@ import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent
 
 class EmailFragment : Fragment() {
 
-    private lateinit var viewModel: EmailViewModel
-    private lateinit var comViewModel: CommunicatorViewModel
-    private lateinit var buttonNext: Button
-
-
-    companion object {
-        lateinit var mctx:Context
+    private val viewModel by lazy {
+        ViewModelProviders.of(this).get(EmailViewModel::class.java)
     }
+
+    private val comViewModel by lazy {
+        ViewModelProviders.of(this).get(CommunicatorViewModel::class.java)
+    }
+    private lateinit var buttonNext: Button
 
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val rootView = inflater.inflate(R.layout.fragment_register_email, container, false)
-
         return rootView
-
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -45,25 +43,16 @@ class EmailFragment : Fragment() {
         bindView(view)
         inputData()
 
-
-
-        buttonNext.setOnClickListener {
-
-            viewModel.onNext(email = email_register.text.toString())
-            comViewModel.setMsgCommunicator(email_register.text.toString())
-        }
-
         coordinateBtnAndInputs(next_btn, email_register)
     }
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        viewModel = ViewModelProviders.of(this).get(EmailViewModel::class.java)
-        comViewModel = ViewModelProviders.of(activity!!).get(CommunicatorViewModel::class.java)
-    }
-
    private fun bindView(view: View) = with(view){
-        buttonNext = view.findViewById(R.id.next_btn)
+       buttonNext = view.findViewById(R.id.next_btn)
+       buttonNext.setOnClickListener {
+
+           viewModel.onNext(email = email_register.text.toString())
+           comViewModel.setMsgCommunicator(email_register.text.toString())
+       }
     }
 
     private fun inputData(){
@@ -83,9 +72,6 @@ class EmailFragment : Fragment() {
                        )
                         ?.addToBackStack(null)
                         ?.commit()
-
-
-
                 }
                 is EmailViewModel.State.Error -> {
                     Toast.makeText(activity, state.message, Toast.LENGTH_SHORT).show()

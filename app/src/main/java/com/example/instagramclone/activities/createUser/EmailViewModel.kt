@@ -11,6 +11,22 @@ class EmailViewModel : ViewModel() {
 
     val liveData = MutableLiveData<Any>()
 
+    private fun FirebaseAuth.fetchSignInMethodsForEmail(email: String, onSuccess: (List<String>) -> Unit){
+        fetchSignInMethodsForEmail(email)
+            .addOnCompleteListener{
+            if (it.isSuccessful){
+                onSuccess (it.result?.signInMethods?: emptyList<String>())
+
+            }
+            else{
+                liveData.value = State.Error(it.exception!!.message!!)
+                liveData.value = State.HideLoading
+            }
+        }
+    }
+
+    private fun validate(email: String) = email.isNotEmpty()
+
     fun onNext(email: String){
         liveData.value = State.ShowLoading
         Log.d("email", email)
@@ -27,24 +43,6 @@ class EmailViewModel : ViewModel() {
             }
         }
     }
-
-    private fun FirebaseAuth.fetchSignInMethodsForEmail(email: String, onSuccess: (List<String>) -> Unit){
-        fetchSignInMethodsForEmail(email)
-            .addOnCompleteListener{
-            if (it.isSuccessful){
-                onSuccess (it.result?.signInMethods?: emptyList<String>())
-
-
-            }
-            else{
-                liveData.value = State.Error(it.exception!!.message!!)
-                liveData.value = State.HideLoading
-            }
-        }
-    }
-
-
-    private fun validate(email: String) = email.isNotEmpty()
 
     sealed class State{
         object ShowLoading: State()

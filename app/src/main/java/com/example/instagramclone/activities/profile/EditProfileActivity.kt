@@ -40,7 +40,11 @@ class EditProfileActivity : AppCompatActivity(), PasswordDialog.Listener{
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit_profile)
         bindView()
-        inputData()
+        setData()
+    }
+
+    override fun onPasswordConfirm(password: String) {
+        viewModel?.onPasswordConfirm(password)
     }
 
     private fun bindView() {
@@ -50,8 +54,6 @@ class EditProfileActivity : AppCompatActivity(), PasswordDialog.Listener{
         viewModel = ViewModelProviders.of(this).get(EditProfViewModel::class.java)
 
         buttonClose.setOnClickListener{ finish() }
-
-
 
 
         buttonSave.setOnClickListener {
@@ -73,9 +75,9 @@ class EditProfileActivity : AppCompatActivity(), PasswordDialog.Listener{
         }
     }
 
-    private fun inputData(){
-        viewModel!!.getCurrentUser()
-        viewModel!!.livaData.observe(this, Observer { state ->
+    private fun setData(){
+        viewModel?.getCurrentUser()
+        viewModel?.livaData?.observe(this, Observer { state ->
             when (state){
                 is EditProfViewModel.StateProfiles.ShowLoading -> {
                     progressBar.visibility = View.VISIBLE
@@ -104,16 +106,14 @@ class EditProfileActivity : AppCompatActivity(), PasswordDialog.Listener{
                     PasswordDialog().show(supportFragmentManager, "password_dialog")
                 }
                 is EditProfViewModel.StateProfiles.SuccessPasswordConfirm -> {
-                    viewModel!!.updateProfile(mPendingUser)
+                    viewModel?.updateProfile(mPendingUser)
                 }
 
             }
         })
     }
 
-    override fun onPasswordConfirm(password: String) {
-        viewModel!!.onPasswordConfirm(password)
-    }
+
 
 //    private fun addDataBse(){
 //

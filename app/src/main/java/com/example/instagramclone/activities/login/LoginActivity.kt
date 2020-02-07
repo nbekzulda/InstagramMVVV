@@ -19,6 +19,14 @@ import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEventList
 
 class LoginActivity : AppCompatActivity(), KeyboardVisibilityEventListener,
     View.OnClickListener {
+
+    private val TAG = "LoginActivity"
+    private lateinit var mAuth: FirebaseAuth
+    private val viewModel by lazy {
+        ViewModelProviders.of(this).get(LoginViewModel::class.java)
+    }
+    private lateinit var buttonLogin: Button
+
     override fun onClick(p0: View) {
         when(p0.id){
             R.id.create_account_text -> {
@@ -28,13 +36,17 @@ class LoginActivity : AppCompatActivity(), KeyboardVisibilityEventListener,
 
     }
 
+    override fun onVisibilityChanged(isKeyboardOpen: Boolean) {
+        if(isKeyboardOpen){
+            scroll_view.scrollTo(0, scroll_view.bottom)
+            create_account_text.visibility = View.GONE
+        }
+        else{
+            scroll_view.scrollTo(0, scroll_view.top)
+            create_account_text.visibility = View.VISIBLE
 
-
-    private val TAG = "LoginActivity"
-    private lateinit var mAuth: FirebaseAuth
-    private var viewModel: LoginViewModel? = null
-
-    private lateinit var buttonLogin: Button
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,29 +63,24 @@ class LoginActivity : AppCompatActivity(), KeyboardVisibilityEventListener,
         login_button.setOnClickListener(this)
         create_account_text.setOnClickListener(this)
 
-        mAuth = FirebaseAuth.getInstance()
-
-        viewModel = ViewModelProviders.of(this).get(LoginViewModel::class.java)
-
-
-        buttonLogin.setOnClickListener {
-            viewModel!!.login(
-                email = email_Input.text.toString(),
-                password = password_Input.text.toString()
-            )
-        }
-
-        inputData()
+        setData()
     }
 
     private fun bindView() {
         buttonLogin = findViewById(R.id.login_button)
 
+        mAuth = FirebaseAuth.getInstance()
 
+        buttonLogin.setOnClickListener {
+            viewModel.login(
+                email = email_Input.text.toString(),
+                password = password_Input.text.toString()
+            )
+        }
     }
 
-    private fun inputData(){
-        viewModel!!.liveData.observe(this, Observer { state ->
+    private fun setData(){
+        viewModel.liveData.observe(this, Observer { state ->
             when (state){
                 is LoginViewModel.State.ShowLoading -> {
                     progressBar.visibility = View.VISIBLE
@@ -127,19 +134,6 @@ class LoginActivity : AppCompatActivity(), KeyboardVisibilityEventListener,
 //
 //
 //    }
-
-
-    override fun onVisibilityChanged(isKeyboardOpen: Boolean) {
-        if(isKeyboardOpen){
-            scroll_view.scrollTo(0, scroll_view.bottom)
-            create_account_text.visibility = View.GONE
-        }
-        else{
-            scroll_view.scrollTo(0, scroll_view.top)
-            create_account_text.visibility = View.VISIBLE
-
-        }
-    }
 
 
 //    private fun validate(email: String, password: String) = email.isNotEmpty() && password.isNotEmpty()

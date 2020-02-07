@@ -15,19 +15,8 @@ import com.google.firebase.database.FirebaseDatabase
 class EditProfViewModel : ViewModel(), PasswordDialog.Listener {
 
     val livaData = MutableLiveData<StateProfiles>()
-
     var mUser: User? = null
-
     var mDatabase: DatabaseReference = FirebaseDatabase.getInstance().reference
-
-    fun getCurrentUser() {
-        FirebaseDatabase.getInstance().reference.child("users")
-            .child(FirebaseAuth.getInstance().currentUser!!.uid)
-            .addListenerForSingleValueEvent(ValueEventListenerAdapter {
-                livaData.value = StateProfiles.CurrentUser(it.getValue(User::class.java)!!)
-                mUser = it.getValue(User::class.java)!!
-            })
-    }
 
     override fun onPasswordConfirm(password: String) {
         if (!password.isNullOrEmpty()) {
@@ -38,10 +27,6 @@ class EditProfViewModel : ViewModel(), PasswordDialog.Listener {
         } else {
             livaData.value = StateProfiles.Error("You should enter your password")
         }
-    }
-
-    fun updateProfile(user: User) {
-        updateUser(user)
     }
 
     private fun updateUser(user: User) {
@@ -61,45 +46,52 @@ class EditProfViewModel : ViewModel(), PasswordDialog.Listener {
 
     }
 
+    fun getCurrentUser() {
+        FirebaseDatabase.getInstance().reference.child("users")
+            .child(FirebaseAuth.getInstance().currentUser!!.uid)
+            .addListenerForSingleValueEvent(ValueEventListenerAdapter {
+                livaData.value = StateProfiles.CurrentUser(it.getValue(User::class.java)!!)
+                mUser = it.getValue(User::class.java)!!
+            })
+    }
+
+    fun updateProfile(user: User) {
+        updateUser(user)
+    }
 
 
-        fun DatabaseReference.updateUser(uid: String, updates: Map<String, Any>, onSuccess: () -> Unit) {
-            child("users").child(FirebaseAuth.getInstance().currentUser!!.uid).updateChildren(updates)
-                .addOnCompleteListener {
-                    if (it.isSuccessful) {
-                        onSuccess()
-                    } else {
-                        livaData.value = StateProfiles.Error(it.exception!!.message!!)
-                    }
-                }
-        }
-
-        fun FirebaseUser.reauthenticate(credential: AuthCredential, onSuccess: () -> Unit) {
-            reauthenticate(credential).addOnCompleteListener {
+    fun DatabaseReference.updateUser(uid: String, updates: Map<String, Any>, onSuccess: () -> Unit) {
+        child("users").child(FirebaseAuth.getInstance().currentUser!!.uid).updateChildren(updates)
+            .addOnCompleteListener {
                 if (it.isSuccessful) {
                     onSuccess()
-                    livaData.value = StateProfiles.SuccessPasswordConfirm
                 } else {
-                    livaData.value = StateProfiles.ErrorPassword(it.exception!!.message!!)
+                    livaData.value = StateProfiles.Error(it.exception!!.message!!)
                 }
             }
-        }
+    }
 
-        fun FirebaseUser.updateEmail(email: String, onSuccess: () -> Unit) {
-            updateEmail(email).addOnCompleteListener {
-                if (it.isSuccessful) {
-                    onSuccess()
-                    livaData.value = StateProfiles.SuccessEmail
-                } else {
-                    livaData.value = StateProfiles.ErrorEmail(it.exception!!.message!!)
-                }
+    fun FirebaseUser.reauthenticate(credential: AuthCredential, onSuccess: () -> Unit) {
+        reauthenticate(credential).addOnCompleteListener {
+            if (it.isSuccessful) {
+                onSuccess()
+                livaData.value = StateProfiles.SuccessPasswordConfirm
+            } else {
+                livaData.value = StateProfiles.ErrorPassword(it.exception!!.message!!)
             }
         }
+    }
 
-
-
-
-
+    fun FirebaseUser.updateEmail(email: String, onSuccess: () -> Unit) {
+        updateEmail(email).addOnCompleteListener {
+            if (it.isSuccessful) {
+                onSuccess()
+                livaData.value = StateProfiles.SuccessEmail
+            } else {
+                livaData.value = StateProfiles.ErrorEmail(it.exception!!.message!!)
+            }
+        }
+    }
 
     sealed class StateProfiles {
         object ShowLoading : StateProfiles()

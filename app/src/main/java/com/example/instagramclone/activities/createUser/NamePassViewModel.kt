@@ -10,35 +10,11 @@ import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
-import java.util.*
 
 class NamePassViewModel : ViewModel(){
 
     val liveData = MutableLiveData<Any>()
 
-
-    fun onRegister(fullname: String, password: String, mEmail: String){
-        liveData.value = State.ShowLoading
-        if(fullname.isNotEmpty() && password.isNotEmpty()){
-            if (mEmail != null) {
-                FirebaseAuth.getInstance().createUserWithEmailAndPassword(mEmail, password){
-                    val user = mkUser(fullname, mEmail)
-                    FirebaseDatabase.getInstance().reference.createUser(it.user!!.uid, user) {
-                        liveData.value = State.Result
-                        liveData.value = State.HideLoading
-                    }
-                }
-            }
-            else{
-               liveData.value = State.Error("Something is wrong. Please try it later")
-                liveData.value = State.HideLoading
-            }
-        }
-        else{
-            liveData.value = State.Error("Please enter full name and password")
-            liveData.value = State.HideLoading
-        }
-    }
 
     private fun mkUser(fullname: String, email: String): User {
         val username = mkUsername(fullname)
@@ -78,8 +54,28 @@ class NamePassViewModel : ViewModel(){
 
     }
 
-
-
+    fun onRegister(fullname: String, password: String, mEmail: String){
+        liveData.value = State.ShowLoading
+        if(fullname.isNotEmpty() && password.isNotEmpty()){
+            if (mEmail != null) {
+                FirebaseAuth.getInstance().createUserWithEmailAndPassword(mEmail, password){
+                    val user = mkUser(fullname, mEmail)
+                    FirebaseDatabase.getInstance().reference.createUser(it.user!!.uid, user) {
+                        liveData.value = State.Result
+                        liveData.value = State.HideLoading
+                    }
+                }
+            }
+            else{
+                liveData.value = State.Error("Something is wrong. Please try it later")
+                liveData.value = State.HideLoading
+            }
+        }
+        else{
+            liveData.value = State.Error("Please enter full name and password")
+            liveData.value = State.HideLoading
+        }
+    }
 
     sealed class State{
         object ShowLoading: State()

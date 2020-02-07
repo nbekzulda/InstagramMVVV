@@ -19,17 +19,23 @@ import com.example.instagramclone.activities.coordinateBtnAndInputs
 import kotlinx.android.synthetic.main.fragment_register_namepass.*
 import kotlinx.android.synthetic.main.fragment_register_namepass.view.*
 
-class NamePassFragment() : Fragment(){
+class NamePassFragment() : Fragment() {
 
-    private lateinit var viewModel: NamePassViewModel
+    private val viewModel by lazy {
+        ViewModelProviders.of(this).get(NamePassViewModel::class.java)
+    }
+    private val comViewModel by lazy {
+        ViewModelProviders.of(this).get(CommunicatorViewModel::class.java)
+    }
     private lateinit var buttonRegister: Button
-    private lateinit var comViewModel: CommunicatorViewModel
+    private lateinit var email: TextView
 
 
-
-
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         val rootView = inflater.inflate(R.layout.fragment_register_namepass, container, false)
 
         return rootView
@@ -38,7 +44,7 @@ class NamePassFragment() : Fragment(){
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
         bindView(view)
-        inputData()
+        setData()
 
         coordinateBtnAndInputs(
             register_btn,
@@ -46,39 +52,30 @@ class NamePassFragment() : Fragment(){
             password_register
         )
 
-        val email = view.findViewById<View>(R.id.emailUser) as TextView
-
-        comViewModel.liveData.observe(this, object: Observer<Any>{
+        comViewModel.liveData.observe(this, object : Observer<Any> {
             override fun onChanged(o: Any?) {
                 email.text = o!!.toString()
             }
 
         })
+    }
 
+    private fun bindView(view: View) = with(view) {
+        buttonRegister = view.findViewById(R.id.register_btn)
+        email = view.findViewById<View>(R.id.emailUser) as TextView
 
-        register_btn.setOnClickListener {
+        buttonRegister.setOnClickListener {
             val fullname = fullname_input.text.toString()
             val password = password_register.text.toString()
 
-
-
             viewModel.onRegister(fullname, password, email.text.toString())
         }
+
     }
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        viewModel = ViewModelProviders.of(this).get(NamePassViewModel::class.java)
-        comViewModel = ViewModelProviders.of(activity!!).get(CommunicatorViewModel::class.java)
-    }
-
-    private fun bindView(view: View) = with(view){
-        buttonRegister = view.findViewById(R.id.register_btn)
-    }
-
-    private fun inputData(){
+    private fun setData() {
         viewModel.liveData.observe(viewLifecycleOwner, Observer { state ->
-            when (state){
+            when (state) {
                 is NamePassViewModel.State.ShowLoading -> {
                     progressBARR.visibility = View.VISIBLE
                 }
@@ -97,11 +94,5 @@ class NamePassFragment() : Fragment(){
                 }
             }
         })
-
-
-
     }
-
-
-
 }
