@@ -84,7 +84,6 @@ class EditProfileRepositoryImpl(val firebaseAuth: FirebaseAuth) : EditProfileRep
 
         mDatabase.updateUser(FirebaseAuth.getInstance().currentUser!!.uid, updatesMap){}
 
-
     }
 
     fun DatabaseReference.updateUser(uid: String, updates: Map<String, Any>, onSuccess: () -> Unit) {
