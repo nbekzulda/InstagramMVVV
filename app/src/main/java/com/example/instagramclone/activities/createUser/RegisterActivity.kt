@@ -10,10 +10,19 @@ import com.google.firebase.database.FirebaseDatabase
 
 class RegisterActivity : AppCompatActivity(){
 
+
+    private val TAG = "RegisterActivity"
+
+    private var mEmail: String? = null
+    private lateinit var mAuth: FirebaseAuth
+    private lateinit var mDatabase: DatabaseReference
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register)
 
+        mAuth = FirebaseAuth.getInstance()
+        mDatabase = FirebaseDatabase.getInstance().reference
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction().add(
                 R.id.frame_layout,
@@ -21,11 +30,10 @@ class RegisterActivity : AppCompatActivity(){
             )
                 .commit()
         }
+
     }
 
 }
-
-
 
 
 //    override fun onNext(email: String) {

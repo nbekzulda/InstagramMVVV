@@ -19,20 +19,21 @@ class LoginViewModel(val loginRepository: LoginRepository) : ViewModel() {
 
     val liveData = MutableLiveData<State>()
 
-
-
     private fun validate(email: String, password: String) = email.isNotEmpty() && password.isNotEmpty()
 
     fun login(email: String, password: String){
         liveData.value = State.ShowLoading
 
         CompositeDisposable().add(
-            Observable.fromCallable { loginRepository.getlogin(email, password)}
+            loginRepository.getlogin(email, password)
                 .subscribe({ result ->
                 Log.d("nur_result", result.toString())
                     liveData.value = State.Result
                     liveData.value = State.HideLoading
-            })
+            }, {
+                    liveData.value = State.Error("SOMETHING WRONG")
+                    liveData.value = State.HideLoading
+                })
             )
 
 
@@ -64,6 +65,3 @@ class LoginViewModel(val loginRepository: LoginRepository) : ViewModel() {
 
 }
 
-private fun CompositeDisposable.add(doOnSubscribe: Observable<Boolean>?) {
-
-}

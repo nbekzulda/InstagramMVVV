@@ -16,26 +16,24 @@ import androidx.lifecycle.ViewModelProviders
 import com.example.instagramclone.R
 import com.example.instagramclone.activities.home.MainActivity
 import com.example.instagramclone.activities.coordinateBtnAndInputs
+import com.example.instagramclone.data.NamePassRepositoryImpl
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.synthetic.main.fragment_register_namepass.*
 import kotlinx.android.synthetic.main.fragment_register_namepass.view.*
 
-class NamePassFragment() : Fragment() {
+class NamePassFragment() : Fragment(){
 
     private val viewModel by lazy {
-        ViewModelProviders.of(this).get(NamePassViewModel::class.java)
-    }
-    private val comViewModel by lazy {
-        ViewModelProviders.of(this).get(CommunicatorViewModel::class.java)
+        val namePassRepository = NamePassRepositoryImpl(firebaseAuth = FirebaseAuth.getInstance())
+        ViewModelProviders.of(this, NamePassViewModelFactory(namePassRepository)).get(NamePassViewModel::class.java)
+
     }
     private lateinit var buttonRegister: Button
     private lateinit var email: TextView
+    private lateinit var comViewModel: CommunicatorViewModel
 
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val rootView = inflater.inflate(R.layout.fragment_register_namepass, container, false)
 
         return rootView
@@ -52,30 +50,33 @@ class NamePassFragment() : Fragment() {
             password_register
         )
 
-        comViewModel.liveData.observe(this, object : Observer<Any> {
+        comViewModel.liveData.observe(this, object: Observer<Any>{
             override fun onChanged(o: Any?) {
                 email.text = o!!.toString()
             }
-
         })
     }
 
-    private fun bindView(view: View) = with(view) {
-        buttonRegister = view.findViewById(R.id.register_btn)
-        email = view.findViewById<View>(R.id.emailUser) as TextView
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        comViewModel = ViewModelProviders.of(activity!!).get(CommunicatorViewModel::class.java)
+    }
 
+    private fun bindView(view: View) = with(view){
+        buttonRegister = view.findViewById(R.id.register_btn)
+        email = view.findViewById(R.id.emailUser)
         buttonRegister.setOnClickListener {
             val fullname = fullname_input.text.toString()
             val password = password_register.text.toString()
 
             viewModel.onRegister(fullname, password, email.text.toString())
-        }
 
+        }
     }
 
-    private fun setData() {
+    private fun setData(){
         viewModel.liveData.observe(viewLifecycleOwner, Observer { state ->
-            when (state) {
+            when (state){
                 is NamePassViewModel.State.ShowLoading -> {
                     progressBARR.visibility = View.VISIBLE
                 }
@@ -87,7 +88,6 @@ class NamePassFragment() : Fragment() {
                     Log.d("email_fragment_result", "onResult")
                     startActivity(Intent(context, MainActivity::class.java))
                     activity?.finish()
-
                 }
                 is NamePassViewModel.State.Error -> {
                     Toast.makeText(activity, state.message, Toast.LENGTH_SHORT).show()

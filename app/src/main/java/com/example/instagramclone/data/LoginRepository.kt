@@ -14,6 +14,7 @@ interface LoginRepository{
 }
 
 class LoginRepositoryImpl(val firebaseAuth: FirebaseAuth ): LoginRepository {
+
     override fun getlogin(email: String, password: String): Observable<Boolean> {
         return Observable.create { emitter ->
             firebaseAuth.signInWithEmailAndPassword(email, password)
@@ -27,9 +28,7 @@ class LoginRepositoryImpl(val firebaseAuth: FirebaseAuth ): LoginRepository {
                     emitter.onError(error)
                     emitter.onComplete()
                 }
-
         }
     }
-
 
 }
