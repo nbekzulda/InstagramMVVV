@@ -21,34 +21,22 @@ import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEventList
 
 class LoginActivity : AppCompatActivity(), KeyboardVisibilityEventListener,
     View.OnClickListener {
-    override fun onClick(p0: View) {
-        when(p0.id){
-            R.id.create_account_text -> {
-                startActivity(Intent(this, RegisterActivity::class.java))
-                finish()
-            }
-        }
-
-    }
-
-
-
     private val TAG = "LoginActivity"
+
+
+
     private lateinit var mAuth: FirebaseAuth
     private val viewModel by lazy {
         val loginRepository = LoginRepositoryImpl(firebaseAuth = FirebaseAuth.getInstance())
         ViewModelProviders.of(this, LoginViewModelFactory(loginRepository = loginRepository)).get(LoginViewModel::class.java)
     }
-
     private lateinit var buttonLogin: Button
+
     private lateinit var  email: TextView
     private lateinit var password: TextView
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
-
-
         Log.d(TAG, "onCreate")
 
         KeyboardVisibilityEvent.setEventListener(this, this)
@@ -63,8 +51,17 @@ class LoginActivity : AppCompatActivity(), KeyboardVisibilityEventListener,
         mAuth = FirebaseAuth.getInstance()
 
         bindView()
-        inputData()
+        setData()
 
+    }
+
+    override fun onClick(p0: View) {
+        when(p0.id){
+            R.id.create_account_text -> {
+                startActivity(Intent(this, RegisterActivity::class.java))
+                finish()
+            }
+        }
 
     }
 
@@ -97,8 +94,8 @@ class LoginActivity : AppCompatActivity(), KeyboardVisibilityEventListener,
 
     }
 
-    private fun inputData(){
-        viewModel?.liveData.observe(this, Observer { state ->
+    private fun setData(){
+        viewModel.liveData.observe(this, Observer { state ->
             when (state){
                 is LoginViewModel.State.ShowLoading -> {
                     progressBar.visibility = View.VISIBLE

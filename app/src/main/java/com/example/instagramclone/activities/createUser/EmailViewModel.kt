@@ -1,48 +1,69 @@
 package com.example.instagramclone.activities.createUser
 
 import android.util.Log
-import android.widget.Toast
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.instagramclone.activities.showToast
+import com.example.instagramclone.data.EmailRepository
 import com.google.firebase.auth.FirebaseAuth
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
 
-class EmailViewModel : ViewModel() {
+class EmailViewModel(val emailRepository: EmailRepository) : ViewModel() {
 
-    val liveData = MutableLiveData<Any>()
-
-    private fun FirebaseAuth.fetchSignInMethodsForEmail(email: String, onSuccess: (List<String>) -> Unit){
-        fetchSignInMethodsForEmail(email)
-            .addOnCompleteListener{
-            if (it.isSuccessful){
-                onSuccess (it.result?.signInMethods?: emptyList<String>())
-
-            }
-            else{
-                liveData.value = State.Error(it.exception!!.message!!)
-                liveData.value = State.HideLoading
-            }
-        }
-    }
-
-    private fun validate(email: String) = email.isNotEmpty()
+    val liveData = MutableLiveData<State>()
 
     fun onNext(email: String){
         liveData.value = State.ShowLoading
-        Log.d("email", email)
-        if(validate(email)){
-            FirebaseAuth.getInstance().fetchSignInMethodsForEmail(email){signInMethods ->
-                if (signInMethods.isEmpty()){
-                    liveData.value = State.Result
-                    liveData.value = State.HideLoading
-                }
-                else{
-                    liveData.value = State.Error("This email already exists")
-                    liveData.value = State.HideLoading
-                }
-            }
-        }
+
+        CompositeDisposable().add(
+            emailRepository.onNext(email)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({result ->
+                liveData.value = State.Result
+                liveData.value = State.HideLoading
+            }, {
+                liveData.value = State.Error("SOMETHING WRONG")
+                liveData.value = State.HideLoading
+            })
+        )
     }
+
+
+//    private fun FirebaseAuth.fetchSignInMethodsForEmail(email: String, onSuccess: (List<String>) -> Unit){
+//        fetchSignInMethodsForEmail(email)
+//            .addOnCompleteListener{
+//            if (it.isSuccessful){
+//                onSuccess (it.result?.signInMethods?: emptyList<String>())
+//
+//
+//            }
+//            else{
+//                liveData.value = State.Error(it.exception!!.message!!)
+//                liveData.value = State.HideLoading
+//            }
+//        }
+//    }
+//
+//    fun onNext(email: String){
+//        liveData.value = State.ShowLoading
+//        Log.d("email", email)
+//        if(validate(email)){
+//            FirebaseAuth.getInstance().fetchSignInMethodsForEmail(email){signInMethods ->
+//                if (signInMethods.isEmpty()){
+//                    liveData.value = State.Result
+//                    liveData.value = State.HideLoading
+//                }
+//                else{
+//                    liveData.value = State.Error("This email already exists")
+//                    liveData.value = State.HideLoading
+//                }
+//            }
+//        }
+//    }
+//
+//    private fun validate(email: String) = email.isNotEmpty()
 
     sealed class State{
         object ShowLoading: State()
