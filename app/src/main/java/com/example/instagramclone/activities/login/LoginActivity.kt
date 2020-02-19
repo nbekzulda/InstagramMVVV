@@ -53,7 +53,6 @@ class LoginActivity : AppCompatActivity(), KeyboardVisibilityEventListener,
         bindView()
         setData()
 
-
     }
 
     override fun onClick(p0: View) {

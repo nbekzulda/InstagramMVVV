@@ -38,7 +38,6 @@ class NamePassViewModel(val namePassRepository: NamePassRepository) : ViewModel(
         )
     }
 
-
 //    private fun mkUsername(fullname: String) = fullname.toLowerCase().replace(" ", ".")
 //
 //    private fun DatabaseReference.createUser(uid: String, user: User, onSuccess: () -> Unit){

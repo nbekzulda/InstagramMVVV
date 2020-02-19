@@ -23,7 +23,6 @@ class EmailRepositoryImpl(val firebaseAuth: FirebaseAuth) : EmailRepository{
         }
     }
 
-
     private fun FirebaseAuth.fetchSignInMethodsForEmail(email: String, onSuccess: (List<String>) -> Unit){
         fetchSignInMethodsForEmail(email)
             .addOnCompleteListener{

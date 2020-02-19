@@ -8,5 +8,4 @@ class NamePassViewModelFactory(val namePassRepository: NamePassRepository) : Vie
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
         return NamePassViewModel(namePassRepository) as T
     }
-
 }

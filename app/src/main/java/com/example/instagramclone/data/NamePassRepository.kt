@@ -16,6 +16,7 @@ interface NamePassRepository{
     fun onRegister(fullname: String, password: String, email: String): Observable<Boolean>
 }
 
+
 class NamePassRepositoryImpl(val firebaseAuth: FirebaseAuth): NamePassRepository{
     override fun onRegister(fullname: String, password: String, email: String): Observable<Boolean> {
         return Observable.create { registrate ->

@@ -8,5 +8,4 @@ class EmailViewModelFactory(private val emailRepository: EmailRepository) : View
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
         return EmailViewModel(emailRepository) as T
     }
-
 }

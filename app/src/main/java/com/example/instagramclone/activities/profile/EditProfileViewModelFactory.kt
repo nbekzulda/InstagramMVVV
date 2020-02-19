@@ -7,6 +7,5 @@ import com.example.instagramclone.data.EditProfileRepository
 class EditProfileViewModelFactory(val editProfRepository: EditProfileRepository) : ViewModelProvider.NewInstanceFactory() {
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
         return EditProfViewModel(editProfRepository) as T
-
     }
 }

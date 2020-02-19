@@ -69,7 +69,6 @@ class EditProfViewModel(val editProfRepository: EditProfileRepository) : ViewMod
         )
     }
 
-
     sealed class StateProfiles {
         object ShowLoading : StateProfiles()
         object HideLoading : StateProfiles()
