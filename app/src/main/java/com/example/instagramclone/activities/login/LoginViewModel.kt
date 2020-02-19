@@ -40,6 +40,7 @@ class LoginViewModel(val loginRepository: LoginRepository) : ViewModel() {
                 })
             )
 
+
 //        if (validate(email, password)) {
 //            FirebaseAuth.getInstance().signInWithEmailAndPassword(email, password)
 //                .addOnCompleteListener {
