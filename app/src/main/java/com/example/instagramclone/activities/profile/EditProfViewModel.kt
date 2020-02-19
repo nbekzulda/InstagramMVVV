@@ -56,7 +56,10 @@ class EditProfViewModel(val editProfRepository: EditProfileRepository) : ViewMod
 
     fun updateProfile(user: User) {
         CompositeDisposable().add(
-            editProfRepository.updateProfile(user).subscribe({
+            editProfRepository.updateProfile(user)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({
                 livaData.value = StateProfiles.Success("Profile saved")
                 livaData.value = StateProfiles.HideLoading
             },{

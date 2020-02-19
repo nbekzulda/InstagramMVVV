@@ -5,7 +5,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.instagramclone.data.EmailRepository
 import com.google.firebase.auth.FirebaseAuth
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
 
 class EmailViewModel(val emailRepository: EmailRepository) : ViewModel() {
 
@@ -15,7 +17,10 @@ class EmailViewModel(val emailRepository: EmailRepository) : ViewModel() {
         liveData.value = State.ShowLoading
 
         CompositeDisposable().add(
-            emailRepository.onNext(email).subscribe({result ->
+            emailRepository.onNext(email)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({result ->
                 liveData.value = State.Result
                 liveData.value = State.HideLoading
             }, {

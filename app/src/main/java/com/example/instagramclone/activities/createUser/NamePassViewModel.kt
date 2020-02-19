@@ -11,7 +11,9 @@ import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
 import java.util.*
 
 class NamePassViewModel(val namePassRepository: NamePassRepository) : ViewModel(){
@@ -23,7 +25,10 @@ class NamePassViewModel(val namePassRepository: NamePassRepository) : ViewModel(
         liveData.value = State.ShowLoading
 
         CompositeDisposable().add(
-            namePassRepository.onRegister(fullname, password, email).subscribe({
+            namePassRepository.onRegister(fullname, password, email)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({
                 liveData.value = State.Result
                 liveData.value = State.HideLoading
             },{
