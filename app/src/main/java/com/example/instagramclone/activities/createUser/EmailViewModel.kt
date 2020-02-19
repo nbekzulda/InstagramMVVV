@@ -30,6 +30,7 @@ class EmailViewModel(val emailRepository: EmailRepository) : ViewModel() {
         )
     }
 
+
 //    private fun FirebaseAuth.fetchSignInMethodsForEmail(email: String, onSuccess: (List<String>) -> Unit){
 //        fetchSignInMethodsForEmail(email)
 //            .addOnCompleteListener{

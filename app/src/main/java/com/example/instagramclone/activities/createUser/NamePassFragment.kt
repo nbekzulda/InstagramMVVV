@@ -74,6 +74,7 @@ class NamePassFragment() : Fragment(){
         }
     }
 
+    
     private fun setData(){
         viewModel.liveData.observe(viewLifecycleOwner, Observer { state ->
             when (state){

@@ -10,6 +10,7 @@ interface EmailRepository{
     fun onNext(email: String) : Observable<Boolean>
 }
 
+
 class EmailRepositoryImpl(val firebaseAuth: FirebaseAuth) : EmailRepository{
     override fun onNext(email: String): Observable<Boolean> {
         return Observable.create {emitter ->

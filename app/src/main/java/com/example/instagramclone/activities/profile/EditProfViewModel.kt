@@ -39,7 +39,6 @@ class EditProfViewModel(val editProfRepository: EditProfileRepository) : ViewMod
         )
     }
 
-
     fun getCurrentUser() {
         CompositeDisposable().add(
             editProfRepository

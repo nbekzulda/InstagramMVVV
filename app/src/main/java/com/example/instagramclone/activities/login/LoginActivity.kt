@@ -38,7 +38,6 @@ class LoginActivity : AppCompatActivity(), KeyboardVisibilityEventListener,
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
-
         Log.d(TAG, "onCreate")
 
         KeyboardVisibilityEvent.setEventListener(this, this)

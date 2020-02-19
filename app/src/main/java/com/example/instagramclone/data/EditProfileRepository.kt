@@ -66,7 +66,6 @@ class EditProfileRepositoryImpl(val firebaseAuth: FirebaseAuth) : EditProfileRep
         }
     }
 
-
     override fun updateProfile(user: User): Single<User> {
         return Single.create{emitter ->
             updateUser(user)

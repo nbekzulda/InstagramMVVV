@@ -67,6 +67,7 @@ class EmailFragment : Fragment() {
         buttonNext = view.findViewById(R.id.next_btn)
     }
 
+
     private fun setData(){
         viewModel.liveData.observe(viewLifecycleOwner, Observer { state ->
             when (state){

@@ -36,6 +36,7 @@ class NamePassRepositoryImpl(val firebaseAuth: FirebaseAuth): NamePassRepository
         }
     }
 
+
     private fun mkUser(fullname: String, email: String): User {
         val username = mkUsername(fullname)
         return User(name = fullname, username = username, email = email)

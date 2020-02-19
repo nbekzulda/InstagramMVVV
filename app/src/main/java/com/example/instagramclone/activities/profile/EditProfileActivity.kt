@@ -31,7 +31,6 @@ class EditProfileActivity : AppCompatActivity(), PasswordDialog.Listener{
     private lateinit var buttonSave: ImageView
     private lateinit var buttonClose: ImageView
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d("EditProfileActivity", "onCreate")
         super.onCreate(savedInstanceState)
