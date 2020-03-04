@@ -1,31 +1,36 @@
 package com.example.instagramclone.activities.createUser
 
-import android.util.Log
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import com.example.instagramclone.data.EmailRepository
-import com.google.firebase.auth.FirebaseAuth
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
 
-class EmailViewModel(val emailRepository: EmailRepository) : ViewModel() {
+import androidx.lifecycle.MutableLiveData
+import com.example.instagramclone.data.EmailRepository
+import com.example.instagramclone.utils.BaseViewModel
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
+import javax.inject.Inject
+
+class EmailViewModel @Inject constructor(val emailRepository: EmailRepository) : BaseViewModel() {
 
     val liveData = MutableLiveData<State>()
 
     fun onNext(email: String){
-        liveData.value = State.ShowLoading
 
-        CompositeDisposable().add(
+
+        disposables.add(
             emailRepository.onNext(email)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
+                .doOnSubscribe {
+                    liveData.value = State.ShowLoading
+                }
+                .doFinally {
+                    liveData.value = State.HideLoading
+                }
                 .subscribe({result ->
                 liveData.value = State.Result
-                liveData.value = State.HideLoading
+
             }, {
                 liveData.value = State.Error("SOMETHING WRONG")
-                liveData.value = State.HideLoading
+
             })
         )
     }
@@ -65,7 +70,7 @@ class EmailViewModel(val emailRepository: EmailRepository) : ViewModel() {
 //
 //    private fun validate(email: String) = email.isNotEmpty()
 
-    sealed class State{
+    sealed class State {
         object ShowLoading: State()
         object HideLoading: State()
         object Result: State()

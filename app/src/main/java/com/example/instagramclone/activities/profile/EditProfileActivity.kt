@@ -1,40 +1,57 @@
 package com.example.instagramclone.activities.profile
 
-import android.content.Intent
+
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.Button
+import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
+import com.example.instagramclone.App
 import com.example.instagramclone.R
 import com.example.instagramclone.activities.showToast
+import com.example.instagramclone.data.EditProfileRepository
 import com.example.instagramclone.data.EditProfileRepositoryImpl
 import com.example.instagramclone.models.User
 import com.example.instagramclone.views.PasswordDialog
 import com.google.firebase.auth.FirebaseAuth
-import kotlinx.android.synthetic.main.activity_edit_profile.*
 import kotlinx.android.synthetic.main.activity_edit_profile.progressBar
+import javax.inject.Inject
 
 
-class EditProfileActivity : AppCompatActivity(), PasswordDialog.Listener{
+class EditProfileActivity : AppCompatActivity(), PasswordDialog.Listener {
 
-    private lateinit var mUser: User
-    private lateinit var mPendingUser: User
+    private lateinit var editUser: User
+    private lateinit var pendingUser: User
+
+    @Inject
+    lateinit var viewModelFactory: ViewModelProvider.Factory
+
+
     private val viewModel by lazy {
-        val editProfileRepository = EditProfileRepositoryImpl(firebaseAuth = FirebaseAuth.getInstance())
-        ViewModelProviders.of(this, EditProfileViewModelFactory(editProfileRepository)).get(EditProfViewModel::class.java)
+
+        ViewModelProviders.of(this, viewModelFactory).get(EditProfViewModel::class.java)
     }
     private lateinit var buttonSave: ImageView
     private lateinit var buttonClose: ImageView
+    private lateinit var phone: EditText
+    private lateinit var userName: EditText
+    private lateinit var name: EditText
+    private lateinit var website: EditText
+    private lateinit var bio: EditText
+    private lateinit var email: EditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d("EditProfileActivity", "onCreate")
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit_profile)
+
+        (application as App).appComponent.inject(this)
+
         bindView()
         setData()
     }
@@ -48,30 +65,36 @@ class EditProfileActivity : AppCompatActivity(), PasswordDialog.Listener{
         Log.d("EditProfileActivity", "bindView")
         buttonSave = findViewById(R.id.save_image)
         buttonClose = findViewById(R.id.close_image)
+        phone = findViewById(R.id.phone_input)
+        name = findViewById(R.id.name_input)
+        userName = findViewById(R.id.Username_input)
+        website = findViewById(R.id.website_input)
+        bio = findViewById(R.id.bio_input)
+        email = findViewById(R.id.email_input)
 
 
         buttonClose.setOnClickListener{ finish() }
 
         buttonSave.setOnClickListener {
-            val phoneStr = phone_input.text.toString()
-            mPendingUser = User(name = name_input.text.toString(),
-                username = Username_input.text.toString(),
-                website = website_input.text.toString(),
-                bio = bio_input.text.toString(),
-                email = email_input.text.toString(),
+            val phoneStr = phone.text.toString()
+            pendingUser = User(name = name.text.toString(),
+                username = userName.text.toString(),
+                website = website.text.toString(),
+                bio = bio.text.toString(),
+                email = email.text.toString(),
                 phone = if(phoneStr.isEmpty()) 0.toString() else phoneStr.toLong().toString())
-            if (mUser.email != email_input.text.toString() && email_input.text.toString().isNotEmpty()) {
+            if (editUser.email != email.text.toString() && email.text.toString().isNotEmpty()) {
                 Log.d("qwe", "fwefw")
                 PasswordDialog().show(supportFragmentManager, "password_dialog")
 
             } else {
-                viewModel.updateProfile(mPendingUser)
+                viewModel.updateProfile(pendingUser)
             }
 
         }
     }
 
-    private fun setData(){
+    private fun setData() {
         Log.d("EditProfileActivity", "inputData")
         viewModel.getCurrentUser()
         viewModel.livaData.observe(this, Observer { state ->
@@ -84,13 +107,13 @@ class EditProfileActivity : AppCompatActivity(), PasswordDialog.Listener{
                     finish()
                 }
                 is EditProfViewModel.StateProfiles.CurrentUser -> {
-                    mUser = state.user
-                    name_input.setText(mUser.name, TextView.BufferType.EDITABLE)
-                    Username_input.setText(mUser.username, TextView.BufferType.EDITABLE)
-                    website_input.setText(mUser.website, TextView.BufferType.EDITABLE)
-                    bio_input.setText(mUser.bio, TextView.BufferType.EDITABLE)
-                    email_input.setText(mUser.email, TextView.BufferType.EDITABLE)
-                    phone_input.setText(mUser.phone, TextView.BufferType.EDITABLE)
+                    editUser = state.user
+                    name.setText(editUser.name, TextView.BufferType.EDITABLE)
+                    userName.setText(editUser.username, TextView.BufferType.EDITABLE)
+                    website.setText(editUser.website, TextView.BufferType.EDITABLE)
+                    bio.setText(editUser.bio, TextView.BufferType.EDITABLE)
+                    email.setText(editUser.email, TextView.BufferType.EDITABLE)
+                    phone.setText(editUser.phone, TextView.BufferType.EDITABLE)
                 }
                 is EditProfViewModel.StateProfiles.Error -> {
                     showToast(state.message)
@@ -103,7 +126,7 @@ class EditProfileActivity : AppCompatActivity(), PasswordDialog.Listener{
                     PasswordDialog().show(supportFragmentManager, "password_dialog")
                 }
                 is EditProfViewModel.StateProfiles.SuccessPasswordConfirm -> {
-                    viewModel.updateProfile(mPendingUser)
+                    viewModel.updateProfile(pendingUser)
 
                 }
                 is EditProfViewModel.StateProfiles.ErrorPassword -> {

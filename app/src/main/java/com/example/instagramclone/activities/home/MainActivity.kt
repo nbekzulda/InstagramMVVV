@@ -1,11 +1,16 @@
-package com.example.instagramclone.activities
+package com.example.instagramclone.activities.home
 
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.instagramclone.R
+import com.example.instagramclone.activities.BaseActivity
+import com.example.instagramclone.activities.login.LoginActivity
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.synthetic.main.activity_home.*
 import java.util.ArrayList
@@ -14,11 +19,13 @@ class MainActivity : BaseActivity(0) {
 
     private val TAG = "MainActivity"
     private lateinit var mAuth: FirebaseAuth
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
         setupBottomNavigation()
         Log.d(TAG, "onCreate")
+
 
         val users = ArrayList<String>()
         val username = ArrayList<String>()
@@ -71,15 +78,7 @@ class MainActivity : BaseActivity(0) {
 
         mAuth = FirebaseAuth.getInstance()
 
-//        auth.signInWithEmailAndPassword("nbekzulda@gmail.com", "16052000nis")
-//            .addOnCompleteListener{
-//                if(it.isSuccessful){
-//                    Log.d(TAG, "signIn: success")
-//                }
-//                else{
-//                    Log.e(TAG, "signIn: failure", it.exception)
-//                }
-//            }
+
         sign_out_text.setOnClickListener {
             progressBar.visibility = View.VISIBLE
             mAuth.signOut()
@@ -101,12 +100,6 @@ class MainActivity : BaseActivity(0) {
             startActivity(Intent(this, LoginActivity::class.java))
             finish()
         }
-
-
-
     }
-
-
-
 }
 

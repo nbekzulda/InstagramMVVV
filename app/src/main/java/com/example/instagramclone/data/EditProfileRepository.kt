@@ -1,10 +1,8 @@
 package com.example.instagramclone.data
 
-import android.content.Context
-import android.util.Log
-import android.widget.Toast
-import com.example.instagramclone.activities.ValueEventListenerAdapter
 
+import android.util.Log
+import com.example.instagramclone.activities.ValueEventListenerAdapter
 import com.example.instagramclone.models.User
 import com.example.instagramclone.views.PasswordDialog
 import com.google.firebase.auth.AuthCredential
@@ -14,25 +12,25 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import io.reactivex.*
+import javax.inject.Inject
 
 
-
-interface EditProfileRepository{
+interface EditProfileRepository {
     fun getCurrentUser() : Single<User>
     fun updateProfile(user: User): Single<User>
     fun onPasswordConfirmed(password: String) : Observable<Boolean>
 
 }
 
-class EditProfileRepositoryImpl(val firebaseAuth: FirebaseAuth) : EditProfileRepository, PasswordDialog.Listener {
+class EditProfileRepositoryImpl @Inject constructor(private val firebaseAuth: FirebaseAuth) : EditProfileRepository, PasswordDialog.Listener {
 
     override fun onPasswordConfirmed(password: String): Observable<Boolean> {
-        return Observable.create{emitter ->
-            if(!password.isNullOrEmpty()){
-                val credential = EmailAuthProvider.getCredential(mUser!!.email, password)
+        return Observable.create { emitter ->
+            if(password.isNotEmpty()){
+                val credential = EmailAuthProvider.getCredential(getUser!!.email, password)
                 FirebaseAuth.getInstance().currentUser!!.reauthenticate(credential){
-                    FirebaseAuth.getInstance().currentUser!!.updateEmail(mUser!!.email){
-                        updateProfile(mUser!!)
+                    FirebaseAuth.getInstance().currentUser!!.updateEmail(getUser!!.email) {
+                        updateProfile(getUser!!)
                         emitter.onNext(true)
                     }
                     emitter.onComplete()
@@ -44,8 +42,8 @@ class EditProfileRepositoryImpl(val firebaseAuth: FirebaseAuth) : EditProfileRep
         }
     }
 
-    var mUser: User? = null
-    var mDatabase: DatabaseReference = FirebaseDatabase.getInstance().reference
+    var getUser: User? = null
+    var getDatabase: DatabaseReference = FirebaseDatabase.getInstance().reference
 
 
     override fun getCurrentUser(): Single<User> {
@@ -58,7 +56,7 @@ class EditProfileRepositoryImpl(val firebaseAuth: FirebaseAuth) : EditProfileRep
                     if (result == null) {
                         emitter.onError(Throwable("User is null"))
                     } else {
-                        mUser = result
+                        getUser = result
                         emitter.onSuccess(result)
                     }
             })
@@ -75,14 +73,14 @@ class EditProfileRepositoryImpl(val firebaseAuth: FirebaseAuth) : EditProfileRep
 
     private fun updateUser(user: User) {
         val updatesMap = mutableMapOf<String, Any>()
-        if (user.name != mUser?.name) updatesMap["name"] = user.name
-        if (user.username != mUser?.username) updatesMap["username"] = user.username
-        if (user.website != mUser?.website) updatesMap["website"] = user.website
-        if (user.bio != mUser?.bio) updatesMap["bio"] = user.bio
-        if (user.email != mUser?.email) updatesMap["email"] = user.email
-        if (user.phone != mUser?.phone) updatesMap["phone"] = user.phone
+        if (user.name != getUser?.name) updatesMap["name"] = user.name
+        if (user.username != getUser?.username) updatesMap["username"] = user.username
+        if (user.website != getUser?.website) updatesMap["website"] = user.website
+        if (user.bio != getUser?.bio) updatesMap["bio"] = user.bio
+        if (user.email != getUser?.email) updatesMap["email"] = user.email
+        if (user.phone != getUser?.phone) updatesMap["phone"] = user.phone
 
-        mDatabase.updateUser(FirebaseAuth.getInstance().currentUser!!.uid, updatesMap){}
+        getDatabase.updateUser(FirebaseAuth.getInstance().currentUser!!.uid, updatesMap){}
 
     }
 
@@ -92,7 +90,7 @@ class EditProfileRepositoryImpl(val firebaseAuth: FirebaseAuth) : EditProfileRep
                 if (it.isSuccessful) {
                     onSuccess()
                 } else {
-                    error(it.exception!!.message!!)
+                    it.exception?.message?.let { it1 -> error(it1) }
                 }
             }
     }
@@ -113,7 +111,7 @@ class EditProfileRepositoryImpl(val firebaseAuth: FirebaseAuth) : EditProfileRep
             if (it.isSuccessful) {
                 onSuccess()
             } else {
-                error(it.exception!!.message!!)
+                it.exception?.message?.let { it1 -> error(it1) }
             }
         }
     }

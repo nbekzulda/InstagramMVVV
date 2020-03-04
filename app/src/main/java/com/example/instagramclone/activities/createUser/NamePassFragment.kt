@@ -12,20 +12,27 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import com.example.instagramclone.R
 import com.example.instagramclone.activities.home.MainActivity
 import com.example.instagramclone.activities.coordinateBtnAndInputs
+import com.example.instagramclone.data.NamePassRepository
 import com.example.instagramclone.data.NamePassRepositoryImpl
+import com.example.instagramclone.di.DaggerAppComponent
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.synthetic.main.fragment_register_namepass.*
 import kotlinx.android.synthetic.main.fragment_register_namepass.view.*
+import javax.inject.Inject
 
-class NamePassFragment() : Fragment(){
+class NamePassFragment() : Fragment() {
+
+    @Inject
+    lateinit var viewModelFactory: ViewModelProvider.Factory
 
     private val viewModel by lazy {
-        val namePassRepository = NamePassRepositoryImpl(firebaseAuth = FirebaseAuth.getInstance())
-        ViewModelProviders.of(this, NamePassViewModelFactory(namePassRepository)).get(NamePassViewModel::class.java)
+
+        ViewModelProviders.of(this, viewModelFactory).get(NamePassViewModel::class.java)
 
     }
     private lateinit var buttonRegister: Button
@@ -59,10 +66,11 @@ class NamePassFragment() : Fragment(){
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
+        DaggerAppComponent.create().inject(this)
         comViewModel = ViewModelProviders.of(activity!!).get(CommunicatorViewModel::class.java)
     }
 
-    private fun bindView(view: View) = with(view){
+    private fun bindView(view: View) = with(view) {
         buttonRegister = view.findViewById(R.id.register_btn)
         email = view.findViewById(R.id.emailUser)
         buttonRegister.setOnClickListener {
@@ -87,7 +95,7 @@ class NamePassFragment() : Fragment(){
                 is NamePassViewModel.State.Result -> {
                     Log.d("email_fragment_result", "onResult")
                     startActivity(Intent(context, MainActivity::class.java))
-                    activity?.finish()
+                    requireActivity().finish()
                 }
                 is NamePassViewModel.State.Error -> {
                     Toast.makeText(activity, state.message, Toast.LENGTH_SHORT).show()

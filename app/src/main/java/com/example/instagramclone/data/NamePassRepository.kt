@@ -1,29 +1,27 @@
 package com.example.instagramclone.data
 
 import android.util.Log
-import com.example.instagramclone.activities.createUser.NamePassViewModel
 import com.example.instagramclone.models.User
-import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import io.reactivex.Observable
-import io.reactivex.Single
 import java.lang.Error
+import javax.inject.Inject
 
-interface NamePassRepository{
+interface NamePassRepository {
     fun onRegister(fullname: String, password: String, email: String): Observable<Boolean>
 }
 
 
-class NamePassRepositoryImpl(val firebaseAuth: FirebaseAuth): NamePassRepository{
+class NamePassRepositoryImpl @Inject constructor (val firebaseAuth: FirebaseAuth): NamePassRepository {
     override fun onRegister(fullname: String, password: String, email: String): Observable<Boolean> {
         return Observable.create { registrate ->
             if (fullname.isNotEmpty() && password.isNotEmpty()) {
                 if (email != null) {
                     firebaseAuth.createUserWithEmailAndPassword(email, password) {
-                        val user = mkUser(fullname, email)
+                        val user = setUser(fullname, email)
                         FirebaseDatabase.getInstance().reference.createUser(it.user!!.uid, user) {
                             registrate.onNext(true)
                         }
@@ -37,35 +35,37 @@ class NamePassRepositoryImpl(val firebaseAuth: FirebaseAuth): NamePassRepository
         }
     }
 
-    private fun mkUser(fullname: String, email: String): User {
-        val username = mkUsername(fullname)
+    private fun setUser(fullname: String, email: String): User {
+        val username = setUsername(fullname)
         return User(name = fullname, username = username, email = email)
     }
 
-    private fun mkUsername(fullname: String) = fullname.toLowerCase().replace(" ", ".")
+    private fun setUsername(fullname: String) = fullname.toLowerCase().replace(" ", ".")
 
-    private fun DatabaseReference.createUser(uid: String, user: User, onSuccess: () -> Unit){
+    private fun DatabaseReference.createUser(uid: String, user: User, onSuccess: () -> Unit) {
         val reference = child("users").child(uid)
         reference.setValue(user).addOnCompleteListener{
-            if (it.isSuccessful){
+            if (it.isSuccessful) {
                 onSuccess()
             }
-            else{
+            else {
                 Error(it.exception?.message)
             }
         }
     }
 
-    private fun FirebaseAuth.createUserWithEmailAndPassword(email: String, password: String, onSuccess: (AuthResult) -> Unit){
+    private fun FirebaseAuth.createUserWithEmailAndPassword(email: String, password: String, onSuccess: (AuthResult) -> Unit) {
         Log.d("email value ", email)
         createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener{
                 if (it.isSuccessful ){
                     onSuccess(it.result!!)
-                }else{
-                    Error(it.exception?.message)
                 }
             }
+            .addOnFailureListener { error ->
+                error.message
+            }
+
     }
 
 

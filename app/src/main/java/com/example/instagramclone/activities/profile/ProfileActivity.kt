@@ -19,7 +19,6 @@ class ProfileActivity : BaseActivity(4) {
         edit_profile_btn.setOnClickListener {
             val intent = Intent(this, EditProfileActivity::class.java)
             startActivity(intent)
-
         }
     }
 }
