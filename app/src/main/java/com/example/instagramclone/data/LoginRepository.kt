@@ -1,20 +1,17 @@
 package com.example.instagramclone.data
 
-import android.util.Log
-import com.example.instagramclone.models.User
+
 import com.google.firebase.auth.FirebaseAuth
-import io.reactivex.MaybeSource
 import io.reactivex.Observable
-import io.reactivex.functions.Function
-import org.reactivestreams.Publisher
+import javax.inject.Inject
 
 
-interface LoginRepository{
+interface LoginRepository {
     fun getlogin(email: String, password: String) : Observable<Boolean>
 }
 
 
-class LoginRepositoryImpl(val firebaseAuth: FirebaseAuth ): LoginRepository {
+class LoginRepositoryImpl @Inject constructor (val firebaseAuth: FirebaseAuth ): LoginRepository {
 
     override fun getlogin(email: String, password: String): Observable<Boolean> {
         return Observable.create { emitter ->
@@ -25,7 +22,7 @@ class LoginRepositoryImpl(val firebaseAuth: FirebaseAuth ): LoginRepository {
                     }
                     emitter.onComplete()
                 }
-                .addOnFailureListener {error ->
+                .addOnFailureListener { error ->
                     emitter.onError(error)
                     emitter.onComplete()
                 }

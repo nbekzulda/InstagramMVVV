@@ -8,36 +8,45 @@ import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
+import com.example.instagramclone.App
 import com.example.instagramclone.R
 import com.example.instagramclone.activities.*
 import com.example.instagramclone.activities.createUser.RegisterActivity
 import com.example.instagramclone.activities.home.MainActivity
+import com.example.instagramclone.data.LoginRepository
 import com.example.instagramclone.data.LoginRepositoryImpl
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.synthetic.main.activity_login.*
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEventListener
+import javax.inject.Inject
 
 class LoginActivity : AppCompatActivity(), KeyboardVisibilityEventListener,
     View.OnClickListener {
     private val TAG = "LoginActivity"
 
+    @Inject
+    lateinit var viewModelFactory: ViewModelProvider.Factory
 
 
-    private lateinit var mAuth: FirebaseAuth
+    private lateinit var firebaseAuth: FirebaseAuth
     private val viewModel by lazy {
-        val loginRepository = LoginRepositoryImpl(firebaseAuth = FirebaseAuth.getInstance())
-        ViewModelProviders.of(this, LoginViewModelFactory(loginRepository = loginRepository)).get(LoginViewModel::class.java)
+
+        ViewModelProviders.of(this, viewModelFactory).get(LoginViewModel::class.java)
     }
     private lateinit var buttonLogin: Button
 
     private lateinit var  email: TextView
     private lateinit var password: TextView
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
         Log.d(TAG, "onCreate")
+
+        (application as App).appComponent.inject(this)
 
         KeyboardVisibilityEvent.setEventListener(this, this)
         coordinateBtnAndInputs(
@@ -48,7 +57,7 @@ class LoginActivity : AppCompatActivity(), KeyboardVisibilityEventListener,
         login_button.setOnClickListener(this)
         create_account_text.setOnClickListener(this)
 
-        mAuth = FirebaseAuth.getInstance()
+        firebaseAuth = FirebaseAuth.getInstance()
 
         bindView()
         setData()

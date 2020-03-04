@@ -1,4 +1,4 @@
-package com.example.instagramclone.activities
+package com.example.instagramclone.activities.home
 
 import android.view.LayoutInflater
 import android.view.View

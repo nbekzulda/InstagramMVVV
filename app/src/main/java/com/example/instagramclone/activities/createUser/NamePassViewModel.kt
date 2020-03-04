@@ -1,39 +1,37 @@
 package com.example.instagramclone.activities.createUser
 
-import android.util.Log
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import com.example.instagramclone.activities.showToast
-import com.example.instagramclone.data.NamePassRepository
-import com.example.instagramclone.models.User
-import com.google.android.gms.tasks.Task
-import com.google.firebase.auth.AuthResult
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
-import java.util.*
 
-class NamePassViewModel(val namePassRepository: NamePassRepository) : ViewModel(){
+import androidx.lifecycle.MutableLiveData
+import com.example.instagramclone.data.NamePassRepository
+import com.example.instagramclone.utils.BaseViewModel
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
+import javax.inject.Inject
+
+class NamePassViewModel @Inject constructor(val namePassRepository: NamePassRepository) : BaseViewModel() {
 
     val liveData = MutableLiveData<State>()
 
 
-    fun onRegister(fullname: String, password: String, email: String){
-        liveData.value = State.ShowLoading
+    fun onRegister(fullname: String, password: String, email: String) {
 
-        CompositeDisposable().add(
+
+        disposables.add (
             namePassRepository.onRegister(fullname, password, email)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
+                .doOnSubscribe {
+                    liveData.value = State.ShowLoading
+                }
+                .doFinally {
+                    liveData.value = State.HideLoading
+                }
                 .subscribe({
                 liveData.value = State.Result
-                liveData.value = State.HideLoading
+
             },{
                 liveData.value = State.Error(it.message!!)
-                liveData.value = State.HideLoading
+
             })
         )
     }
@@ -96,7 +94,7 @@ class NamePassViewModel(val namePassRepository: NamePassRepository) : ViewModel(
 //    }
 
 
-    sealed class State{
+    sealed class State {
         object ShowLoading: State()
         object HideLoading: State()
         object Result: State()
